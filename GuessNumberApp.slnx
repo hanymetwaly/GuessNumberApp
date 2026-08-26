@@ -4,5 +4,6 @@
     <Project Path="backend/GuessNumber.Application/GuessNumber.Application.csproj" />
     <Project Path="backend/GuessNumber.Domain/GuessNumber.Domain.csproj" />
     <Project Path="backend/GuessNumber.Infrastructure/GuessNumber.Infrastructure.csproj" />
+    <Project Path="backend/GuessNumber.Tests/GuessNumber.Tests.csproj" />
   </Folder>
 </Solution>
