@@ -1,5 +1,4 @@
 using System.Text;
-using GuessNumber.Api.Middleware;
 using GuessNumber.Infrastructure;
 using GuessNumber.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +9,7 @@ using Serilog.Events;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using GuessNumber.Application.Validators;
+using GuessNumber.Api.Handlers;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -61,6 +61,16 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowAnyMethod()));
 
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = ctx =>
+    {
+        ctx.ProblemDetails.Extensions["traceId"] = ctx.HttpContext.TraceIdentifier;
+    };
+});
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
@@ -72,8 +82,9 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+// after build:
+app.UseExceptionHandler();
 // --- Middleware pipeline ---
-app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

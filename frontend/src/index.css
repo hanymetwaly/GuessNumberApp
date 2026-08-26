@@ -46,3 +46,20 @@ button:hover { background: #1e3c72; }
   padding: 0.6rem; text-align: left; border-bottom: 1px solid #eee;
 }
 .leaderboard th { color: #1e3c72; }
+
+.field-error {
+  display: block;
+  color: #e11d48;      /* rose red */
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e3c72;
+  margin-bottom: 0.2rem;
+}
+.required {
+  color: red;   /* the * asterisk */
+}
