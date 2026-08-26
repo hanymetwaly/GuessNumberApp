@@ -5,13 +5,30 @@ using GuessNumber.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using GuessNumber.Application.Validators;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()   // stdout -> collected by Azure/AWS automatically
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 // --- Services ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddFluentValidationAutoValidation();      // auto-runs on model binding
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<GuessRequestDtoValidator>();
 
 // Our Infrastructure (DbContext, repos, services, JWT settings)
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -45,6 +62,8 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod()));
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // --- Auto-apply migrations on startup (handy for Docker/cloud) ---
 using (var scope = app.Services.CreateScope())

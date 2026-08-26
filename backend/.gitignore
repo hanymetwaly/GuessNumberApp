@@ -19,3 +19,12 @@ Thumbs.db
 
 # EF Core
 *.db
+
+# Node
+node_modules/
+frontend/dist/
+
+# Env & secrets
+*.env
+.env
+appsettings.Development.json
