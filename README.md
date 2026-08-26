@@ -25,6 +25,9 @@ Root: GuessNumberApp.slnx
   - `AppDbContext` (EF Core), repository implementations
   - Persistence migrations and DB provider configuration
 
+- `frontend/` — React + Vite single-page app (game UI, auth, leaderboard)
+  - Consumes the API above; see [`frontend/README.md`](frontend/README.md) for details
+
 ## Design principles
 - Single Responsibility: each layer has a single focus
 - Dependency direction: outer layers depend on inner layers; domain has no framework dependencies
@@ -117,11 +120,33 @@ Open `http://localhost:5000/swagger` to view the UI and try endpoints. The `/swa
 - Use `Swashbuckle.AspNetCore` filters to customize schema generation.
 
 ## API endpoints (quick reference)
-- `POST /api/auth/register` — Register a user. Body: `RegisterDto`.
+Auth (`AuthController`, route `api/auth`):
+- `POST /api/auth/register` — Register a user. Body: `RegisterDto`. Response: `AuthResponseDto` with JWT.
 - `POST /api/auth/login` — Login. Body: `LoginDto`. Response: `AuthResponseDto` with JWT.
-- `POST /api/games` — Start a new game (authenticated).
-- `GET /api/games/{id}` — Get game state (authenticated).
-- `POST /api/games/{id}/guess` — Submit a guess. Body: `{ "guess": 21 }`.
+- `POST /api/auth/logout` — Logout. Exists so the frontend can call a consistent API.
+
+Game (`GameController`, route `api/game`, requires JWT unless noted):
+- `POST /api/game/start` — Start a new game. Response: `StartGameResponseDto`.
+- `POST /api/game/guess` — Submit a guess. Body: `GuessRequestDto` (`{ "guess": 21 }`). Response: `GuessResponseDto`.
+- `GET /api/game/leaderboard` — Public leaderboard (`[AllowAnonymous]`).
+
+## Frontend
+The `frontend/` directory contains a React + Vite SPA that consumes this API
+(authentication, gameplay, and the leaderboard). See
+[`frontend/README.md`](frontend/README.md) for full details.
+
+Quick start:
+
+```bash
+cd frontend
+npm install
+# point the client at the running API (include the /api prefix)
+echo "VITE_API_URL=http://localhost:5000/api" > .env.local
+npm run dev
+```
+
+The frontend authenticates via `POST /api/auth/login|register`, stores the
+returned JWT, and sends it as a `Bearer` token on subsequent requests.
 
 ## Example controllers (minimal)
 Below are compact examples to illustrate typical controller implementations and DTO mapping. These are intentionally minimal — adapt error handling, logging, and dependency injection to your app.
@@ -217,6 +242,7 @@ Notes:
 ## Development workflow
 - Use feature branches and pull requests.
 - Run unit tests for application and domain logic, and use integration tests for DB/EF workflows.
+- Run the frontend test suite from `frontend/` with `npm test` (Vitest + Testing Library + msw).
 - Consider using Docker or a `devcontainer` to standardize the dev environment.
 
 ## Troubleshooting

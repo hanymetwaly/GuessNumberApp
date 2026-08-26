@@ -1,16 +1,95 @@
-# React + Vite
+# GuessNumberApp — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React + Vite single-page app for the "Guess the Number" game. It talks to the
+[GuessNumber.Api](../README.md) backend for authentication, gameplay, and the
+leaderboard.
 
-Currently, two official plugins are available:
+## Tech stack
+- React 19 + Vite
+- React Router (`react-router-dom`) for routing
+- Axios for API calls (with JWT + error-normalizing interceptors)
+- Context API for auth state (`AuthContext`)
+- Vitest + Testing Library + msw for unit tests
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Prerequisites
+- Node.js 18+ (or the version your team standardizes on)
+- The backend API running and reachable (see the root README)
 
-## React Compiler
+## Setup
+```bash
+cd frontend
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> Note: this project uses React 19 with `@testing-library/react@16`. If you add
+> dependencies that still peer-depend on React 18, npm may report an
+> `ERESOLVE` conflict — install those with `--legacy-peer-deps`.
 
-## Expanding the Oxlint configuration
+## Environment variables
+Create a `.env` (or `.env.local`) file in `frontend/`:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+# Base URL of the backend API — include the /api prefix
+VITE_API_URL=http://localhost:5000/api
+```
+
+The Axios client (`src/api/client.js`) uses `VITE_API_URL` as its `baseURL` and
+issues requests to paths like `/auth/login` and `/game/start`, so the value must
+include the API's `/api` prefix.
+
+## Scripts
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server with HMR |
+| `npm run build` | Production build to `dist/` |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run Oxlint |
+| `npm test` | Run the unit test suite (Vitest) |
+
+Run tests once (non-watch) with:
+
+```bash
+npm test -- --run
+```
+
+## Routes
+| Path | Page | Access |
+| --- | --- | --- |
+| `/` | Game | Protected (requires login) |
+| `/login` | Login | Public |
+| `/register` | Register | Public |
+| `/leaderboard` | Leaderboard | Public |
+| `*` | Redirects to `/` | — |
+
+## Project structure
+```
+src/
+  api/client.js         Axios instance, JWT + error interceptors
+  context/AuthContext.jsx  Auth state (register/login/logout/updateBestScore)
+  components/
+    NavBar.jsx
+    ProtectedRoute.jsx  Guards routes that require a logged-in user
+  pages/
+    Game.jsx
+    Leaderboard.jsx
+    Login.jsx
+    Register.jsx
+  mocks/                msw handlers + server used by tests
+  setupTests.js         Test bootstrap (jest-dom, msw lifecycle)
+  App.jsx               Router + provider composition
+  main.jsx              App entry point
+```
+
+## Testing
+Unit tests live in `__tests__/` folders next to the code they cover and run on
+[Vitest](https://vitest.dev/) in a `jsdom` environment.
+
+- **Testing Library** (`@testing-library/react`, `user-event`) for rendering and
+  interaction.
+- **msw** intercepts HTTP calls so components hit realistic mock responses
+  (see `src/mocks/handlers.js`).
+- Global test config lives in `vite.config.js` under the `test` key
+  (`globals`, `environment: 'jsdom'`, `setupFiles`).
+
+Components that use router hooks (`useNavigate`, `<Navigate>`, `<Link>`) must be
+rendered inside a router in tests — wrap them in `<MemoryRouter>`.
