@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/GuessNumber.Api/GuessNumber.Api.csproj" />
+    <Project Path="backend/GuessNumber.Application/GuessNumber.Application.csproj" />
+    <Project Path="backend/GuessNumber.Domain/GuessNumber.Domain.csproj" />
+    <Project Path="backend/GuessNumber.Infrastructure/GuessNumber.Infrastructure.csproj" />
+  </Folder>
+</Solution>
