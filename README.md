@@ -218,8 +218,3 @@ exposed to the client.
 - Build timeouts: run `dotnet build` locally and inspect the full output for errors.
 - Port in use: change `ASPNETCORE_URLS` to another port.
 
-## Future improvements
-- Add integration tests covering the full API + database flow.
-- Add a CI pipeline (build, test, migrations) with GitHub Actions.
-- Expand Swagger documentation with JWT authorization support for authenticated endpoints.
-
