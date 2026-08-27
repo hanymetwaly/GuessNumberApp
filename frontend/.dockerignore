@@ -4,3 +4,7 @@ dist-ssr
 .git
 *.log
 .DS_Store
+# Keep local dev env out of the production build; VITE_API_URL is set via build arg.
+.env
+.env.*
+!.env.example
