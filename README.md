@@ -7,7 +7,7 @@ A small .NET 10 web API and domain project for a "guess the number" game.
 
 This is the fastest way to get the application running on your own machine for review or development.
 
-## 1. Run the full stack locally
+## Run the full stack locally
 
 ### Prerequisites
 - .NET 10 SDK
@@ -65,7 +65,7 @@ Vite prints the local URL (usually `http://localhost:5173`). Open it in your bro
 - Play the game at `/`.
 - View the leaderboard at `/leaderboard`.
 
-## 2. Run tests
+## Run tests
 
 ### Backend tests
 
