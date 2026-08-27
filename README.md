@@ -2,8 +2,85 @@
 
 A small .NET 10 web API and domain project for a "guess the number" game.
 
-## Summary
-A layered .NET 10 application that demonstrates a clean separation between API, application logic, domain model, and infrastructure. The goals are clarity, testability, and safe handling of secrets (e.g., the secret number is never returned to clients).
+**GitHub:** https://github.com/hanymetwaly/GuessNumberApp  
+**Live demo:** https://guessnumber-demo.westus2.cloudapp.azure.com
+
+This is the fastest way to get the application running on your own machine for review or development.
+
+## 1. Run the full stack locally
+
+### Prerequisites
+- .NET 10 SDK
+- Node.js 18+
+- Docker (for the Postgres database)
+
+### Step 1 — Start Postgres
+
+If you already have Postgres running, create a database named `guessnumber` and ensure the connection string in `backend/GuessNumber.Api/appsettings.Development.json` is correct.
+
+Otherwise, run Postgres in Docker with one command:
+
+```bash
+docker run -d \
+  --name guessnumber-db \
+  -e POSTGRES_DB=guessnumber \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  postgres:16
+```
+
+### Step 2 — Clone the repository
+
+```bash
+git clone https://github.com/hanymetwaly/GuessNumberApp.git
+cd GuessNumberApp
+```
+
+### Step 3 — Run the backend
+
+```bash
+cd backend/GuessNumber.Api
+dotnet run
+```
+
+The API starts on `http://localhost:5000` and Swagger UI is available at `http://localhost:5000/swagger`.
+
+### Step 4 — Run the frontend
+
+Open a new terminal:
+
+```bash
+cd frontend
+npm install
+echo "VITE_API_URL=http://localhost:5000/api" > .env.local
+npm run dev
+```
+
+Vite prints the local URL (usually `http://localhost:5173`). Open it in your browser.
+
+### Step 5 — Use the app
+- Register an account at `/register`.
+- Log in at `/login`.
+- Play the game at `/`.
+- View the leaderboard at `/leaderboard`.
+
+## 2. Run tests
+
+### Backend tests
+
+```bash
+cd backend/GuessNumber.Tests
+dotnet test
+```
+
+### Frontend tests
+
+```bash
+cd frontend
+npm install
+npm test -- --run
+```
 
 ## Solution layout
 Root: GuessNumberApp.slnx
@@ -33,31 +110,6 @@ Root: GuessNumberApp.slnx
 - Dependency direction: outer layers depend on inner layers; domain has no framework dependencies
 - DTOs at the boundary: map domain entities to DTOs before returning to the client
 - Avoid leaking sensitive fields (e.g., `SecretNumber`) in API responses
-
-## Build and run (backend only)
-
-Prerequisites:
-- .NET 10 SDK installed
-- A running Postgres instance on `localhost:5432` with database `guessnumber`
-  (see [Run the full stack locally](#run-the-full-stack-locally) for the simplest setup)
-
-Restore and build the solution:
-
-```bash
-dotnet restore
-dotnet build GuessNumberApp.slnx
-```
-
-Run the API locally (bind to port 5000):
-
-```bash
-DOTNET_CLI_HOME=$HOME ASPNETCORE_URLS=http://localhost:5000 dotnet run --project backend/GuessNumber.Api
-# then open http://localhost:5000/swagger
-```
-
-The app auto-applies EF Core migrations on startup. If `appsettings.Development.json` is missing, copy `appsettings.json` and adjust the connection string.
-
-If you see a `DOTNET_CLI_HOME` warning, ensure the environment variable points to a writable directory.
 
 ## Database and Migrations
 - Connection strings live in `backend/GuessNumber.Api/appsettings*.json`.
@@ -134,63 +186,6 @@ Game (`GameController`, route `api/game`, requires JWT unless noted):
 - `POST /api/game/start` — Start a new game. Response: `StartGameResponseDto`.
 - `POST /api/game/guess` — Submit a guess. Body: `GuessRequestDto` (`{ "guess": 21 }`). Response: `GuessResponseDto`.
 - `GET /api/game/leaderboard` — Public leaderboard (`[AllowAnonymous]`).
-
-## Run the full stack locally
-
-This is the fastest way to get the whole app running on your machine for
-development or review.
-
-### 1. Start a local Postgres database
-
-If you already have Postgres running, create a database named `guessnumber` and
-set the connection string in `backend/GuessNumber.Api/appsettings.Development.json`.
-
-Otherwise, run Postgres in Docker:
-
-```bash
-docker run -d \
-  --name guessnumber-db \
-  -e POSTGRES_DB=guessnumber \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 \
-  postgres:16
-```
-
-### 2. Run the backend
-
-```bash
-cd backend/GuessNumber.Api
-# The default development connection string points to localhost:5432
-dotnet run
-```
-
-The API will be available at `http://localhost:5000` and Swagger at
-`http://localhost:5000/swagger`.
-
-### 3. Run the frontend
-
-In a new terminal:
-
-```bash
-cd frontend
-npm install
-echo "VITE_API_URL=http://localhost:5000/api" > .env.local
-npm run dev
-```
-
-Open the URL printed by Vite (usually `http://localhost:5173`).
-
-### 4. Play the game
-- Register an account at `/register`.
-- Log in at `/login`.
-- Play at `/` (guess the number 1–43).
-- View the leaderboard at `/leaderboard`.
-
-## Frontend
-The `frontend/` directory contains a React + Vite SPA that consumes this API
-(authentication, gameplay, and the leaderboard). See
-[`frontend/README.md`](frontend/README.md) for full details.
 
 ## Controllers and DTOs
 The real controllers live in `backend/GuessNumber.Api/Controllers`:
