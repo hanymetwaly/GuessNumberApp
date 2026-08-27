@@ -1,0 +1,16 @@
+# Secrets / local environment (compose reads this at deploy time) — never commit.
+.env
+*.env.local
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Build artifacts (also covered by per-project .gitignore files)
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+build_logs/

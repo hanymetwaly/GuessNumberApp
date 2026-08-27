@@ -1,0 +1,25 @@
+# Caddy edge proxy with automatic HTTPS (Let's Encrypt).
+#
+# {$SITE_ADDRESS} and {$TLS_EMAIL} come from the environment (see .env / compose).
+# - For a real public demo set SITE_ADDRESS to your Azure FQDN, e.g.
+#     guessnumber-demo.westeurope.cloudapp.azure.com
+#   Caddy will then obtain and renew a free TLS certificate automatically.
+# - For local testing set SITE_ADDRESS=:80 to serve plain HTTP (no cert).
+
+{$SITE_ADDRESS} {
+	# Optional ACME account email for Let's Encrypt notifications.
+	tls {$TLS_EMAIL}
+
+	encode gzip
+
+	# API traffic -> backend container. The path prefix is preserved, so
+	# /api/auth/login is forwarded to backend:8080/api/auth/login.
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+
+	# Everything else -> the static React app (nginx) container.
+	handle {
+		reverse_proxy frontend:80
+	}
+}

@@ -1,0 +1,13 @@
+# Applies to the backend build (context: repo root). Keep the build context small.
+.git
+.gitignore
+**/bin/
+**/obj/
+**/node_modules/
+frontend/dist/
+build_logs/
+Library/
+.env
+*.md
+docker-compose.yml
+Caddyfile
